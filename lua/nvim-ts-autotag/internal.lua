@@ -427,6 +427,7 @@ end
 
 local is_before_word = is_before("%w", 1)
 local is_before_arrow = is_before("<", 0)
+local is_after_close_arrow = is_before(">", 1)
 
 M.rename_tag = function()
     if is_before_word() then
@@ -459,7 +460,9 @@ M.attach = function(bufnr)
         if Setup.get_opts(vim.bo.filetype).enable_close then
             vim.keymap.set("i", ">", function()
                 local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-                vim.api.nvim_buf_set_text(bufnr, row - 1, col, row - 1, col, { ">" })
+                if not is_after_close_arrow() then
+                    vim.api.nvim_buf_set_text(bufnr, row - 1, col, row - 1, col, { ">" })
+                end
                 M.close_tag()
                 vim.api.nvim_win_set_cursor(0, { row, col + 1 })
             end, {
